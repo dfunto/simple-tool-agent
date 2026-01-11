@@ -5,10 +5,7 @@ from agent import Agent
 
 def main():
     agent = Agent()
-    while True:
-        print("How can I help you today? (Hit CTRL + C to exit)")
-        prompt = input()
-        agent.run(prompt=prompt)
+    agent.run()
 
 
 def signal_handler(_sig, _frame):

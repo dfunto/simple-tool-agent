@@ -1,0 +1,17 @@
+services:
+
+  backend:
+    container_name: "agent-backend"
+    image: "agent-backend:0.0.0"
+    volumes:
+      - ./src/:/backend/src
+    build:
+      context: .
+
+  llm:
+    container_name: "agent-llama"
+    image: ollama/ollama:0.14.0-rc2
+    ports:
+      - 11434:11434
+    volumes:
+      - ./data/ollama:/root/.ollama

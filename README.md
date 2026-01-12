@@ -7,7 +7,7 @@ Download Llama model first
 
 ```shell
 docker-compose up -d llm
-docker-compose exec llm ollama pull llama3.1
+docker-compose exec llm ollama pull llama3.2:3b
 ```
 
 ## Using the Agent

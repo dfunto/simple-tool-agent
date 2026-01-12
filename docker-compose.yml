@@ -8,6 +8,15 @@ services:
     build:
       context: .
 
+  mcp:
+    container_name: "agent-llama"
+    image: ollama/ollama:0.14.0-rc2
+    ports:
+      - 11434:11434
+    volumes:
+      - ./data/ollama:/root/.ollama
+
+
   llm:
     container_name: "agent-llama"
     image: ollama/ollama:0.14.0-rc2

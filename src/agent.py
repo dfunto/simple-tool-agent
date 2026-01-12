@@ -1,36 +1,49 @@
 import requests
+import textwrap
 
-from models import Observation
+from models import AgentObservation
+from logs import LoggingMixin
+from src.models import AgentPlan
 
 
-class Agent:
+class Agent(LoggingMixin):
 
-    def observe(self) -> Observation:
+    def observe(self) -> AgentObservation:
         print("How can I help you today? (Hit CTRL + C to exit)")
         prompt = input()
-        return Observation(prompt=prompt)
+        return AgentObservation(prompt=prompt)
 
-    def plan(self, observation: Observation):
-        plan_prompt = f"""
+    def plan(self, observation: AgentObservation) -> AgentPlan:
+        plan_prompt = textwrap.dedent(f"""
+        You are a tool-selection engine.
+        Rules:
+            - Respond with VALID JSON ONLY
+            - No explanations
+            - No markdown
+            - No extra text
+
         User input: "{observation.prompt}"
         Available tools: "{','.join(observation.tools)}"
         
         Task: Decide which tool to use and what input to provide.
-        Return JSON: {{"tool": "file_reader", "input": "notes.txt"}}
-        """
+        Output Example: {{"tool": "selected tool", "input": "user input for the tool"}}
+        """)
+        self.log.info(f"Plan Prompt:{plan_prompt}")
         response = requests.post(
             url="http://llm:11434/api/generate",
             json={
-                "model": "llama3.1",
-                "prompt": plan_prompt
-            }
+                "model": "llama3.2:3b",
+                "prompt": plan_prompt,
+                "format": "json",
+                "stream": False
+            },
         )
         response.raise_for_status()
-        plan_output = response.text
-        print(f"Plan: {plan_output}")
+        plan_output = response.json().get("response")
+        self.log.info(f"Plan Output:\n{plan_output}")
+        return AgentPlan(**plan_output)
 
-
-    def act(self):
+    def act(self, plan: AgentPlan):
         print("Acting")
 
     def reflect(self):
@@ -39,6 +52,6 @@ class Agent:
     def run(self):
         while True:
             observation = self.observe()
-            self.plan(observation=observation)
+            plan = self.plan(observation=observation)
             self.act()
             self.reflect()

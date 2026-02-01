@@ -5,16 +5,19 @@ services:
     image: "agent-backend:0.0.0"
     volumes:
       - ./src/:/backend/src
+      - ./input/:/backend/input
     build:
       context: .
+    depends_on:
+      - llm
 
-  mcp:
-    container_name: "agent-llama"
-    image: ollama/ollama:0.14.0-rc2
-    ports:
-      - 11434:11434
-    volumes:
-      - ./data/ollama:/root/.ollama
+#  mcp:
+#    container_name: "agent-llama"
+#    image: ollama/ollama:0.14.0-rc2
+#    ports:
+#      - 11434:11434
+#    volumes:
+#      - ./data/ollama:/root/.ollama
 
 
   llm:
